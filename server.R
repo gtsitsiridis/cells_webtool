@@ -24,8 +24,9 @@ shinyServer(function(input, output, session) {
     withProgress(session = session, value = 0.5, {
       setProgress(message = "Calculation in progress")
       cell_type <- input$cell_type
+      gene_name <- input$gene
       try({
-        p <- plot_volcano(de_table, cell_type)
+        p <- plot_volcano(de_table, cell_type, gene = gene_name)
         p <-
           ggplotly(p,
                    tooltip = c("Gene", "-log10(pvalue)", "log2FoldChange"))

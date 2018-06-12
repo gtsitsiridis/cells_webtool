@@ -1,5 +1,5 @@
 # Volcano plot
-plot_volcano <- function(de_table, cell_type, gene) {
+plot_volcano <- function(de_table, cell_type, gene_name) {
   # extract cell type info
   pval_keyword <- "p_val"
   fc_keyword <- "avg_logFC"
@@ -14,8 +14,9 @@ plot_volcano <- function(de_table, cell_type, gene) {
   
   # add colour for top 10
   de.dt <- de.dt[, colour := "none"]
-  de.dt <- de.dt[order(pvalue)]
-  de.dt[(1:10), colour := "top"]
+  de.dt[Gene == gene_name, colour :="selected"]
+  # de.dt <- de.dt[order(pvalue)]
+  # de.dt[(1:10), colour := "top"]
   
   p <-
     ggplot(data = de.dt,
@@ -28,7 +29,7 @@ plot_volcano <- function(de_table, cell_type, gene) {
     # , colour = threshold)) +
     geom_point() +
     labs(x = "Fold change (log2)", y = "-log10 p-value") +
-    scale_color_manual(values = c(top = "red", none = "black")) +
+    scale_color_manual(values = c(selected = "red", none = "black")) +
     guides(col = F)
   p + aes(
     x = log2FoldChange,
