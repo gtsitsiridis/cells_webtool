@@ -1,0 +1,8 @@
+.control-bar {
+  text-align: center;
+  background-color:whitesmoke;
+  padding-bottom: 15px;
+  padding-top: 15px;
+  margin-bottom: 10px;
+}
+.shiny-output-error:before { visibility: hidden; }

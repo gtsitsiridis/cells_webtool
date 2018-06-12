@@ -1,0 +1,23 @@
+library(shiny)
+library(rhdf5)
+library(plotrix)
+library(data.table)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(gridExtra)
+library(grid)
+library(plotly)
+library(tidyr)
+
+
+source("functions.R")
+load("data/Solubility.RData")
+# Read DE table
+de_table <- read.delim("data/AllDEtable.txt", check.names = F)
+de_table <- as.data.table(de_table, keep.rownames = T)
+colnames(de_table) <- gsub("\\s", "__", colnames(de_table))
+cell_info <- as.data.table(read.table("data/metadata.txt"), keep.rownames = T)
+tsne_coord <- read.table("data/tSNE_coord.txt", sep = "\t")
+genes <- scan(what = character(), "data/genes.txt", sep = "\n")
