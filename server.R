@@ -57,7 +57,7 @@ shinyServer(function(input, output, session) {
     withProgress(session = session, value = 0.5, {
       setProgress(message = "Calculation in progress")
       gene_name <- input$gene
-      try(dotPlot(gene_name, cell_info), silent = T)
+      try(dotPlot(gene_name, cell_info), silent = F)
     })
   })
   output$tab3_solubilityPlot <- renderPlot({

@@ -1,6 +1,3 @@
-library(shiny)
-library(rhdf5)
-
 # Define UI for application that plots random distributions
 shinyUI(tagList(
   includeCSS("www/style.css"),
