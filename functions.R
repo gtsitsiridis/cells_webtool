@@ -31,7 +31,7 @@ plot_volcano <- function(de_table, cell_type, gene_name) {
     labs(x = "Fold change (log2)", y = "-log10 p-value") +
     scale_color_manual(values = c(selected = "red", none = "black")) +
     guides(col = F)
-  p + aes(
+  p<- p + aes(
     x = log2FoldChange,
     y = -log10(pvalue),
     col = colour,
@@ -126,7 +126,7 @@ dotPlot <- function (gene_name = "Scgb1a1"){
      }
 
     # Load gene expression
-    expression <- h5read("data/scaledData.h5", name = as.character(gene_name))
+    expression <- h5read(expression.file, name = as.character(gene_name))
 
     # remove cell types from cell info
     inds <- which(
@@ -158,8 +158,9 @@ dotPlot <- function (gene_name = "Scgb1a1"){
     
     p <- ggplot(data = data.to.plot, mapping = aes(x = Gene, y = Cell_type)) +
     geom_point(mapping = aes(size = PctExpressed, color = AvgScaledExpr)) +
-    scale.func(range=c(0, 6), limits = c(NA, NA)) +
+    scale.func(range=c(2, 8), limits = c(NA, NA)) +
     theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+    # H5close()
     p
   }
 
@@ -167,7 +168,7 @@ genBoxplot <-
   function(gene_name = "Scd1",
            cell_type = "Type_2_pneumocytes") {
     expression <-
-      h5read("data/scaledData.h5", name = as.character(gene_name))
+      h5read(expression.file, name = as.character(gene_name))
     
     dt <-
       cbind(expression = expression, cell_info[, .(grouping, celltype)])
@@ -185,7 +186,7 @@ genBoxplot <-
   }
 
 
-genLinePlot <- function(protein) {
+genLinePlot <- function(protein="Frem1") {
   library(readxl)
   library(plyr)
   age <- c(rep("young", 16), rep("old", 16))
@@ -232,4 +233,32 @@ genLinePlot <- function(protein) {
     scale_color_manual(values = c(old = "red", young = "blue")) +
     ylab("Normalized MS-Intensity") + xlab("") +
     geom_hline(yintercept = 0, lty = 2)
+}
+
+
+distplot <- function(gene_name = 'Frem1') {
+  gene <-
+    h5read(expression.file, name = gene_name)
+  gene.min <- quantile(gene, 0.01)
+  gene.max <- quantile(gene, 0.99)
+  gene[which(gene > gene.max)] <- gene.max
+  gene[which(gene < gene.min)] <- gene.min
+  # farben <-
+  #   color.scale(gene,
+  #               extremes = c("grey", "darkblue"),
+  #               alpha = 0.5)
+  # plot(
+  #   tsne_coord,
+  #   col = farben,
+  #   pch = 19,
+  #   main = gene_name,
+  #   cex = 0.6
+  # )
+  H5close()
+  dt <- cbind(tsne_coord, expression=gene)
+  
+  ggplot(dt) + geom_point(aes(tSNE_1, tSNE_2, col=gene), alpha=.5) + 
+    scale_color_continuous(low="grey", high = "darkblue")+
+    guides(col=guide_legend(title="Expression")) + 
+    ggtitle(gene_name)
 }
