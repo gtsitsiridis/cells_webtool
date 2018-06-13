@@ -39,6 +39,19 @@ plot_volcano <- function(de_table, cell_type, gene_name) {
   )
 }
 
+# Protein bulk age DE boxplot
+genBoxplot_protein <- function(protein = "Bpifa1") {
+    expression <- log(protein_bulk[protein,])
+
+    dt <- data.frame(expression, grouping = c(rep("24m", 4), rep("3m", 4)))
+    
+    ggplot(dt, aes(factor(grouping, levels = c("3m", "24m")), expression, col = grouping, fill = grouping)) +
+      geom_boxplot() + geom_jitter(colour = "black") +
+      scale_color_manual(values = c(`3m` = "blue", `24m` = "red")) +
+      scale_fill_manual(values = c(`3m` = "white", `24m` = "white")) +
+      xlab("") + ylab("MS intensity") + ggtitle(protein)
+}
+
 # genePlot <-
 #   function (gene_name,
 #             expression,
