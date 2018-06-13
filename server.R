@@ -60,7 +60,7 @@ shinyServer(function(input, output, session) {
   output$distplot <- renderPlot({
     gene_name <- values$gene
     p <- try(
-      distplot(gene_name),
+      genTSNEplot(gene_name),
     silent = T)
     class(p)[3] <- "distplot"
     check_save(p)

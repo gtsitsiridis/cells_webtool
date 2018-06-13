@@ -13,6 +13,7 @@ library(tidyr)
 library(shiny)
 library(rhdf5)
 library(Seurat)
+library(shinydashboard)
 
 
 source("functions.R")

@@ -1,3 +1,4 @@
+
 # Volcano plot
 plot_volcano <- function(de_table, cell_type, gene_name) {
   # extract cell type info
@@ -31,77 +32,30 @@ plot_volcano <- function(de_table, cell_type, gene_name) {
     labs(x = "Fold change (log2)", y = "-log10 p-value") +
     scale_color_manual(values = c(selected = "red", none = "black")) +
     guides(col = F)
-  p<- p + aes(
+  p +
+    geom_point(data=de.dt[de.dt$colour == "selected", ], aes(x=log2FoldChange, y=-log10(pvalue)), colour="red", size=2) +
+    geom_text_repel(data=de.dt[de.dt$colour == "selected", ], aes(label = Gene), colour="red", size=5)+aes(
     x = log2FoldChange,
     y = -log10(pvalue),
     col = colour,
-    label = Gene
-  )
+    label = Gene)
+}
+# Protein bulk age DE boxplot
+genBoxplot_protein <- function(protein = "Bpifa1") {
+    if(length(intersect(protein, rownames(protein_bulk))) == 0) return(emptyPlot())
+  
+    expression <- log(protein_bulk[protein,])
+
+    dt <- data.frame(expression, grouping = c(rep("24m", 4), rep("3m", 4)))
+    
+    ggplot(dt, aes(factor(grouping, levels = c("3m", "24m")), expression, col = grouping, fill = grouping)) +
+      geom_boxplot() + geom_jitter(colour = "black") +
+      scale_color_manual(values = c(`3m` = "blue", `24m` = "red")) +
+      scale_fill_manual(values = c(`3m` = "white", `24m` = "white")) +
+      xlab("") + ylab("MS intensity") + ggtitle(protein)
 }
 
-# genePlot <-
-#   function (gene_name,
-#             expression,
-#             cell_info,
-#             cell_type,
-#             ident.include = NULL,
-#             nCol = NULL,
-#             do.sort = FALSE,
-#             y.max = NULL,
-#             same.y.lims = FALSE,
-#             size.x.use = 16,
-#             size.y.use = 16,
-#             size.title.use = 20,
-#             adjust.use = 1,
-#             point.size.use = 1,
-#             cols.use = NULL,
-#             group.by = NULL,
-#             y.log = FALSE,
-#             x.lab.rot = FALSE,
-#             y.lab.rot = FALSE,
-#             legend.position = "right",
-#             single.legend = TRUE,
-#             remove.legend = FALSE,
-#             do.return = FALSE,
-#             return.plotlist = FALSE)
-#   {
-#     data.use <- data.frame(expression)
-#     colnames(data.use) <- gene_name
-#     cells.to.include <- which(cell_info$celltype == cell_type)
-#     data.use <- data.use[cells.to.include, , drop = FALSE]
-#     ident.use <-
-#       factor(cell_info$grouping, levels = c("3m", "24m"))[cells.to.include]
-#     gene.names <- gene_name
-#     remove.legend <- TRUE
-#
-#     y.max <- max(data.use)
-#
-#     cols.use <- c("blue", "red")
-#     x <- gene_name
-#     Seurat:::SingleVlnPlot(
-#       feature = x,
-#       data = data.use[,
-#                       x, drop = FALSE],
-#       cell.ident = ident.use,
-#       do.sort = do.sort,
-#       y.max = y.max,
-#       size.x.use = size.x.use,
-#       size.y.use = size.y.use,
-#       size.title.use = size.title.use,
-#       adjust.use = adjust.use,
-#       point.size.use = point.size.use,
-#       cols.use = cols.use,
-#       gene.names = gene.names,
-#       y.log = y.log,
-#       x.lab.rot = x.lab.rot,
-#       y.lab.rot = y.lab.rot,
-#       legend.position = legend.position,
-#       remove.legend = remove.legend
-#     )
-#   }
-
-# Seurat::DotPlot
-# dotPlot(gene_name, expression, cell_info)
+# Dot plot
 dotPlot <- function (gene_name = "Scgb1a1"){
     # Defaults
     cols.use = c("lightgrey", "blue")
@@ -114,35 +68,25 @@ dotPlot <- function (gene_name = "Scgb1a1"){
                          'radius' = scale_radius,
                          stop("'scale.by' must be either 'size' or 'radius'"))
     
-     MinMax <- function (data, min, max){
+    MinMax <- function (data, min, max){
            data2 <- data
            data2[data2 > max] <- max
            data2[data2 < min] <- min
            return(data2)
      }
      
-     PercentAbove <- function (x, threshold){
+    PercentAbove <- function (x, threshold){
          return(length(x = x[x > threshold])/length(x = x))
      }
 
     # Load gene expression
     expression <- h5read(expression.file, name = as.character(gene_name))
-
+    expression <- (expression - mean(expression)) / sd(expression)
     # remove cell types from cell info
-    inds <- which(
-      cell_info$celltype %in% c(
-        "red_blood_cells",
-        "Gamma-Delta_T_cells",
-        "low_quality_cells ",
-        NA
-      )
-    )
-    cell_info_tmp <- cell_info[-inds]
-    expression <- expression[-inds]
 
     data.to.plot <- data.frame(expression)
     colnames(x = data.to.plot) <- gene_name
-    data.to.plot$id <- cell_info_tmp$celltype
+    data.to.plot$id <- cell_info$celltype
     data.to.plot <- data.to.plot %>% gather(key = genes.plot, value = expression, -c(id))
     data.to.plot <- data.to.plot %>% group_by(id, genes.plot) %>%
       dplyr::summarize(
@@ -154,16 +98,30 @@ dotPlot <- function (gene_name = "Scgb1a1"){
       mutate(avg.exp.scale = scale(x = avg.exp)) %>% mutate(avg.exp.scale = MinMax(data = avg.exp.scale, max = 2.5, min = -2.5))
     data.to.plot$pct.exp[data.to.plot$pct.exp < 0] <- NA
     data.to.plot <- as.data.frame(data.to.plot)
-    colnames(data.to.plot) <- c("Cell_type", "Gene", "AvgExpr", "PctExpressed", "AvgScaledExpr")
+    colnames(data.to.plot) <- c("Cell_type", "Gene", "AvgExpr", "PctExpressed", "AvgRelExpr")
+    
+    bad <- c( "red_blood_cells", "Gamma-Delta_T_cells", "low_quality_cells")
+    data.to.plot <- data.to.plot[-match(bad, as.character(data.to.plot$Cell_type)), ]
+    data.to.plot <- data.to.plot[-which(is.na(data.to.plot$Cell_type)), ]
+    
+    celltype_order <- rev(c("Alveolar_macrophage", "Mki67+_proliferating_cells", "Natural_Killer_cells",
+                        "Plasma_cells", "B_cells", "Cd4+_T_cells", "CD8+_T_cells", "Interstitial_macrophages",
+                        "non-classical_monocyte_(Ly6c2-)", "classical_monocyte_(Ly6c2+)", "Cd103+/Cd11b-_dendritic_cells",
+                        "CD209+/Cd11b+_dendritic_cells", "Ccl17+/Cd103-/Cd11b-_dendritic_cells", "Megakaryocytes",
+                        "Neutrophils", "Eosinophils", "Fn1+_macrophage", "lymphatic_endothelial_cells", "Vcam1+_endothelial_cells",
+                        "vascular_endothelial_cells", "Capillary_endothelial_cells", "Mesothelial_cells", "Smooth_muscle_cells",
+                        "Interstitial_Fibroblast", "Lipofibroblast", "Type1_pneumocytes", "Type_2_pneumocytes",
+                        "Ciliated_cells", "Club_cells", "Goblet_cells"))
+    data.to.plot$Cell_type <- factor(data.to.plot$Cell_type, levels = celltype_order)
     
     p <- ggplot(data = data.to.plot, mapping = aes(x = Gene, y = Cell_type)) +
-    geom_point(mapping = aes(size = PctExpressed, color = AvgScaledExpr)) +
+    geom_point(mapping = aes(size = PctExpressed, color = AvgRelExpr)) +
     scale.func(range=c(2, 8), limits = c(NA, NA)) +
-    theme(axis.title.x = element_blank(), axis.title.y = element_blank())
-    # H5close()
+    theme(axis.text.y = element_text(size=13), plot.margin=unit(c(1,1,1,1), "cm"), legend.text=element_text(size=13), legend.title=element_text(size=10), legend.position = c(0.75, 0.5), axis.title.x = element_blank(), axis.title.y = element_blank())
     p
   }
 
+# mRNA boxplot
 genBoxplot <-
   function(gene_name = "Scd1",
            cell_type = "Type_2_pneumocytes") {
@@ -182,13 +140,36 @@ genBoxplot <-
     )) + geom_violin()  + geom_jitter(colour = "black") +
       scale_color_manual(values = c(`3m` = "blue", `24m` = "red")) +
       scale_fill_manual(values = c(`3m` = "blue", `24m` = "red")) +
-      xlab("") + ylab("Scaled expression") + ggtitle(gene_name)
+      xlab("") + ylab("UMI counts [log2]") + ggtitle(gene_name)
   }
 
+# tSNE plot
+# genTSNEplot <- function(gene = "Ear2"){
+#   expr <-
+#     h5read("data/AgingData.h5", name = as.character(gene))
+#   
+#   if(sum(expr) == 0) return(emptyPlot())
+#   
+#   expr <- (expr - mean(expr)) / sd(expr)
+#   expr.min <- quantile(expr, 0.01)
+#   expr.max <- quantile(expr, 0.99)
+#   if(expr.min == expr.max) expr <- h5read("data/AgingData.h5", name = as.character(gene))
+#   #expr[which(expr > expr.max)] <- expr.max
+#   #expr[which(expr < expr.min)] <- expr.min
+#   farben <- color.scale(expr, extremes = c("grey", "darkblue"), alpha = 0.5)
+#   plot(
+#     tsne_coord,
+#     col = farben,
+#     pch = 19,
+#     main = gene,
+#     cex = 0.6)
+# }
 
-genLinePlot <- function(protein="Frem1") {
-  library(readxl)
-  library(plyr)
+# Solubility plot
+genLinePlot <- function(protein = "Frem1") {
+  
+  if(length(intersect(protein, rownames(protein_fractions))) == 0) return(emptyPlot())
+  
   age <- c(rep("young", 16), rep("old", 16))
   fractions <-
     c(
@@ -232,11 +213,39 @@ genLinePlot <- function(protein="Frem1") {
                  lwd = 1) +
     scale_color_manual(values = c(old = "red", young = "blue")) +
     ylab("Normalized MS-Intensity") + xlab("") +
-    geom_hline(yintercept = 0, lty = 2)
+    geom_hline(yintercept = 0, lty = 2) +
+    theme(plot.margin = unit(c(0.5, 0.5, 0.5, 2), "cm"))
+}
+
+# Some meta functions
+RNA_panel <- function(gene, celltype){
+  boxplot_rna <- genBoxplot(gene_name = gene, cell_type = celltype)
+  dotplot_rna <- dotPlot(gene_name = gene)
+  vulcano_rna <- plot_volcano(de_table = de_table, cell_type = celltype, gene_name = gene)
+  
+  lay <- rbind(c(1,2,3))
+  grid.arrange(dotplot_rna, vulcano_rna, boxplot_rna, layout_matrix = lay)
+}
+
+Solubility_panel <- function(gene){
+  dotplot_rna <- dotPlot(gene_name = gene)
+  solubility_prot <- genLinePlot(gene)
+  
+  lay <- rbind(c(1,2,2))
+  grid.arrange(dotplot_rna, solubility_prot, layout_matrix = lay)
+}
+
+emptyPlot <- function(){
+  df <- data.frame(x = 5, y = 5, text = "Not detected")
+  ggplot(df, aes(x, y, label = text))+
+    geom_point(col = "white") + xlim(0, 10) + ylim(0, 10) + geom_text() +
+    theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank(),
+          axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) +
+    theme(plot.margin = unit(c(2, 2, 2, 2), "cm"))
 }
 
 
-distplot <- function(gene_name = 'Frem1') {
+genTSNEplot <- function(gene_name = 'Frem1') {
   gene <-
     h5read(expression.file, name = gene_name)
   gene.min <- quantile(gene, 0.01)
