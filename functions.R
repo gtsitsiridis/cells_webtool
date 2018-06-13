@@ -102,65 +102,64 @@ plot_volcano <- function(de_table, cell_type, gene_name) {
 
 # Seurat::DotPlot
 # dotPlot(gene_name, expression, cell_info)
-dotPlot <-
-  function (gene_name,
-            cell_info)
-  {
+dotPlot <- function (gene_name = "Scgb1a1"){
     # Defaults
     cols.use = c("lightgrey", "blue")
-    col.min = -2.5
-    col.max = 2.5
-    dot.min = 0
-    dot.scale = 6
-    scale.by = "radius"
-    scale.min = NA
-    scale.max = NA
     plot.legend = FALSE
     do.return = FALSE
     x.lab.rot = FALSE
-    scale.func <- switch(EXPR = scale.by,
+    
+    scale.func <- switch(EXPR = "radius",
                          'size' = scale_size,
                          'radius' = scale_radius,
                          stop("'scale.by' must be either 'size' or 'radius'"))
-    # Load gene expression
-    expression <-
-      h5read("data/scaledData.h5", name = as.character(gene_name))
     
+     MinMax <- function (data, min, max){
+           data2 <- data
+           data2[data2 > max] <- max
+           data2[data2 < min] <- min
+           return(data2)
+     }
+     
+     PercentAbove <- function (x, threshold){
+         return(length(x = x[x > threshold])/length(x = x))
+     }
+
+    # Load gene expression
+    expression <- h5read("data/scaledData.h5", name = as.character(gene_name))
+
     # remove cell types from cell info
     inds <- which(
       cell_info$celltype %in% c(
         "red_blood_cells",
         "Gamma-Delta_T_cells",
-        "low_quality_cells "
+        "low_quality_cells ",
+        NA
       )
     )
-    inds <- c(inds, which(is.na(cell_info$celltype)))
-    cell_info <- cell_info[-inds]
+    cell_info_tmp <- cell_info[-inds]
     expression <- expression[-inds]
-    
+
     data.to.plot <- data.frame(expression)
     colnames(x = data.to.plot) <- gene_name
-    data.to.plot$id <- cell_info$celltype
-    data.to.plot <- data.to.plot %>% gather(key = genes.plot,
-                                            value = expression, -c(id))
+    data.to.plot$id <- cell_info_tmp$celltype
+    data.to.plot <- data.to.plot %>% gather(key = genes.plot, value = expression, -c(id))
     data.to.plot <- data.to.plot %>% group_by(id, genes.plot) %>%
       dplyr::summarize(
         avg.exp = mean(expm1(x = expression)),
-        pct.exp = Seurat:::PercentAbove(x = expression,
-                                        threshold = 0)
+        pct.exp = PercentAbove(x = expression,  threshold = 0)
       )
     data.to.plot <-
       data.to.plot %>% ungroup() %>% group_by(genes.plot) %>%
-      mutate(avg.exp.scale = scale(x = avg.exp)) %>% mutate(avg.exp.scale = MinMax(data = avg.exp.scale,
-                                                                                   max = col.max, min = col.min))
-    data.to.plot$pct.exp[data.to.plot$pct.exp < dot.min] <- NA
+      mutate(avg.exp.scale = scale(x = avg.exp)) %>% mutate(avg.exp.scale = MinMax(data = avg.exp.scale, max = 2.5, min = -2.5))
+    data.to.plot$pct.exp[data.to.plot$pct.exp < 0] <- NA
     data.to.plot <- as.data.frame(data.to.plot)
+    colnames(data.to.plot) <- c("Cell_type", "Gene", "AvgExpr", "PctExpressed", "AvgScaledExpr")
     
-    p <- ggplot(data = data.to.plot, mapping = aes(x = genes.plot,
-                                                   y = id)) + geom_point(mapping = aes(size = pct.exp,
-                                                                                       color = as.numeric(avg.exp.scale))) + scale.func(range = c(0, dot.scale),
-                                                                                                                                        limits = c(scale.min, scale.max)) + theme(axis.title.x = element_blank(),
-                                                                                                                                                                                  axis.title.y = element_blank())
+    p <- ggplot(data = data.to.plot, mapping = aes(x = Gene, y = Cell_type)) +
+    geom_point(mapping = aes(size = PctExpressed, color = AvgScaledExpr)) +
+    scale.func(range=c(0, 6), limits = c(NA, NA)) +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank())
     p
   }
 
