@@ -179,7 +179,7 @@ dotPlot <- function (gene_name = "Scgb1a1") {
   p <-
     ggplot(data = data.to.plot, mapping = aes(x = Gene, y = Cell_type)) +
     geom_point(mapping = aes(size = PctExpressed, color = AvgRelExpr)) +
-    scale.func(range = c(2, 8), limits = c(NA, NA)) +
+    scale.func(range = c(0, 10), limits = c(NA, NA)) +
     theme(
       axis.text.y = element_text(size = 13),
       plot.margin = unit(c(1, 1, 1, 1), "cm"),
