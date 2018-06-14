@@ -15,6 +15,8 @@ library(rhdf5)
 library(Seurat)
 library(shinydashboard)
 library(ggthemes)
+library(shinycssloaders)
+
 
 source("functions.R")
 gene_de.file <- "data/AllDEtable.txt"

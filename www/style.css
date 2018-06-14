@@ -6,3 +6,8 @@
   margin-bottom: 10px;
 }
 .shiny-output-error:before { visibility: hidden; }
+
+#download_plots_button{
+	margin-top: 10px;
+	font-weight: bold;
+}

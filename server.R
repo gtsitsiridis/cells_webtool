@@ -24,7 +24,7 @@ shinyServer(function(input, output, session) {
     # Check if exists
     if (class(plot) == "try-error") {
       plot  <-
-       emptyPlot()
+        emptyPlot()
     } else{
       # Save plot
       cl <- class(plot)[3]
@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
   values <- reactiveValues(gene = genes[1],
                            cell_type = cell_types[1])
   
-  ### Pass input to values 
+  ### Pass input to values
   observeEvent(values$gene, {
     new_gene_name <- values$gene
     updateSelectInput(session,
@@ -178,21 +178,25 @@ shinyServer(function(input, output, session) {
     gene <- values$gene
     dt <- getMarkersTable(cell_type)
     DT::datatable(
-      dt, extensions = 'Buttons',
+      dt,
+      extensions = 'Buttons',
       options = list(
         pageLength = 25,
         scrollX = TRUE,
         scrollY = "400px",
         searchHighlight = T,
         dom = '<"top"Bf>rt<"bottom"lip><"clear">',
-        buttons = list('print',
-                       list(
-                         extend =  "csv",
-                         title = paste0(values$study,"_samples")
-                       ), list(
-                         extend =  "pdf",
-                         title = paste0(values$study,"_samples")
-                       ))
+        buttons = list(
+          'print',
+          list(
+            extend =  "csv",
+            title = paste0(values$study, "_samples")
+          ),
+          list(
+            extend =  "pdf",
+            title = paste0(values$study, "_samples")
+          )
+        )
       ),
       rownames = FALSE,
       selection = list(
@@ -205,14 +209,37 @@ shinyServer(function(input, output, session) {
   
   ### Extra features
   # Download plots
-  # output$download_plots_button <- downloadHandler(filename = function(){
-  #   tab <- input$tabs
-  #   paste0(gsub("\\s", "_", tab), "_plots.RData")
-  # },
-  # content = function(file){
-  #   save(plots$distplot, file)
-  # }
-  # )
+  output$download_plots_button <-
+    downloadHandler(
+      filename = function() {
+        tab <- input$tabs
+        paste0(gsub("\\s", "_", tab), "_plots.zip")
+      },
+      content = function(file) {
+        tab <- input$tabs
+        if (tab == "celltype_tab") {
+          plot_names <- c("dotplot", "distplot")
+        } else if (tab == "solubility_tab") {
+          plot_names <- c("dotplot", "solubility", "protein_violinplot")
+        } else if (tab == "mRNA_tab") {
+          plot_names <- c("dotplot", "gene_volcano", "gene_violinplot")
+        }
+        files <- sapply(plot_names, function(x) {
+          p <- plots[[x]]
+          file_name <- paste0(x, ".pdf")
+          if (is.null(p)) {
+            return(NA)
+          }
+          ggsave(file = file_name, plot = p)
+          return(file_name)
+        })
+        files <- files[!is.na(files)]
+        zip(file, files)
+        # plots <-
+        # a <- plots$dotplot
+        # save(a, file=file)
+      }
+    )
   
   # plots <- reactiveValues(
   #   distplot = NULL,
@@ -229,9 +256,11 @@ shinyServer(function(input, output, session) {
     row_selected <- input$markers_table_rows_selected
     
     isolate(cell_type <- values$cell_type)
-    dt <- markers_table[cluster==cell_type, -c(which(colnames(markers_table)=="cluster")), with=F]
+    dt <-
+      markers_table[cluster == cell_type,-c(which(colnames(markers_table) == "cluster")), with =
+                      F]
     
-    new_gene_name <- dt[row_selected,gene]
+    new_gene_name <- dt[row_selected, gene]
     values$gene <- new_gene_name
   })
   

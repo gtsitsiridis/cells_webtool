@@ -1,7 +1,6 @@
 
 
 getMarkersTable <- function(cell_type = "Alveolar_macrophage") {
-  gene1 <- gene
   dt <-
     markers_table[cluster == cell_type,-c(which(colnames(markers_table) == "cluster")), with =
                     F]
@@ -334,7 +333,7 @@ Solubility_panel <- function(gene) {
 
 emptyPlot <- function() {
   df <- data.frame(x = 5, y = 5, text = "Not detected")
-  ggplot(df, aes(x, y, label = text)) +
+  p<- ggplot(df, aes(x, y, label = text)) +
     geom_point(col = "white") + xlim(0, 10) + ylim(0, 10) + geom_text() +
     theme(
       axis.title.x = element_blank(),
@@ -345,4 +344,6 @@ emptyPlot <- function() {
       axis.ticks.y = element_blank()
     ) +
     theme(plot.margin = unit(c(2, 2, 2, 2), "cm"))
+  class(p)[4] <- "empty_plot"
+  p
 }
