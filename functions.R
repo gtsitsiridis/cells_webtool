@@ -334,16 +334,18 @@ Solubility_panel <- function(gene) {
 emptyPlot <- function() {
   df <- data.frame(x = 5, y = 5, text = "Not detected")
   p<- ggplot(df, aes(x, y, label = text)) +
-    geom_point(col = "white") + xlim(0, 10) + ylim(0, 10) + geom_text() +
+    geom_point(col = "white") + xlim(0, 10) + ylim(0, 10) + geom_text()+ theme_bw() +
     theme(
       axis.title.x = element_blank(),
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank(),
       axis.title.y = element_blank(),
       axis.text.y = element_blank(),
-      axis.ticks.y = element_blank()
+      axis.ticks.y = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.grid.major= element_blank()
     ) +
-    theme(plot.margin = unit(c(2, 2, 2, 2), "cm"))
+    theme(plot.margin = unit(c(2, 2, 2, 2), "cm")) 
   class(p)[4] <- "empty_plot"
   p
 }

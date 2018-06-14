@@ -212,11 +212,11 @@ shinyServer(function(input, output, session) {
   output$download_plots_button <-
     downloadHandler(
       filename = function() {
-        tab <- input$tabs
+        isolate(tab <- input$tabs)
         paste0(gsub("\\s", "_", tab), "_plots.zip")
       },
       content = function(file) {
-        tab <- input$tabs
+        isolate(tab <- input$tabs)
         if (tab == "celltype_tab") {
           plot_names <- c("dotplot", "distplot")
         } else if (tab == "solubility_tab") {
