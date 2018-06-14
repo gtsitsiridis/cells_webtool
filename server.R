@@ -1,19 +1,30 @@
 shinyServer(function(input, output, session) {
+  ### Descriptions
+  help <- list()
+  
+  help[["celltype_tab"]] <-
+    HTML('<center><strong><p>celltype_tab help</strong></p></center>')
+  help[["solubility_tab"]] <-
+    HTML('<center><strong><p>solubility_tab help</strong></p></center>')
+  help[["mRNA_tab"]] <-
+    HTML('<center><strong><p>mRNA_tab help</strong></p></center>')
+  help[["overview"]] <-
+    HTML('')
+  
+  output$description <-
+    renderUI(HTML("<center><h1>Add description of the tool</h1></center>"))
+  
+  output$help <- renderUI({
+    tab <- input$tabs
+    help[[tab]]
+  })
+  
   ### Helper functions
   check_save <- function(plot) {
     # Check if exists
     if (class(plot) == "try-error") {
       plot  <-
-        plot(
-          0,
-          col = 'white',
-          xlim = c(-1, 1),
-          ylim = c(-1, 1),
-          yaxt = 'n',
-          xaxt = 'n',
-          ann = F
-        )
-      text(0, 0, 'Not detected')
+       emptyPlot()
     } else{
       # Save plot
       cl <- class(plot)[3]
@@ -29,12 +40,14 @@ shinyServer(function(input, output, session) {
     protein_volcano = NULL,
     gene_volcano = NULL,
     solubility = NULL,
-    violinplot = NULL
+    gene_violinplot = NULL,
+    protein_violinplot = NULL
   )
   
   values <- reactiveValues(gene = genes[1],
                            cell_type = cell_types[1])
   
+  ### Pass input to values 
   observeEvent(values$gene, {
     new_gene_name <- values$gene
     updateSelectInput(session,
@@ -47,21 +60,29 @@ shinyServer(function(input, output, session) {
   observeEvent(values$cell_type, {
     new_cell_type <- values$cell_type
     updateSelectInput(session,
-                      "cell_type", "Query cell type:", cell_types,
+                      "cell_type",
+                      "Query cell type:",
+                      cell_types,
                       selected = new_cell_type)
   })
   observeEvent(input$cell_type, {
     new_cell_type <- input$cell_type
     values$cell_type <- new_cell_type
   })
-  output$description <- renderUI(HTML("<center><h1>Add description of the tool</h1></center>"))
+  
+  ### Define gene and cell type selectors
+  output$cell_type_selector <- renderUI({
+    selectInput("cell_type", "Query cell type:", cell_types)
+  })
+  output$gene_selector <- renderUI({
+    selectInput("gene", "Query gene/protein:", genes)
+  })
   
   ### Create plots
   output$distplot <- renderPlot({
     gene_name <- values$gene
-    p <- try(
-      genTSNEplot(gene_name),
-    silent = T)
+    p <- try(genTSNEplot(gene_name),
+             silent = T)
     class(p)[3] <- "distplot"
     check_save(p)
   })
@@ -86,13 +107,22 @@ shinyServer(function(input, output, session) {
     })
   })
   
-  output$violinplot <- renderPlot({
+  output$gene_violinplot <- renderPlot({
     withProgress(session = session, value = 0.5, {
       setProgress(message = "Calculation in progress")
       gene_name <- values$gene
       cell_type <- values$cell_type
       p <- try(genBoxplot(gene_name, cell_type), silent = T)
-      class(p)[3] <- "violinplot"
+      class(p)[3] <- "gene_violinplot"
+      check_save(p)
+    })
+  })
+  output$protein_violinplot <- renderPlot({
+    withProgress(session = session, value = 0.5, {
+      setProgress(message = "Calculation in progress")
+      gene_name <- values$gene
+      p <- try(genBoxplot_protein(gene_name), silent = T)
+      class(p)[3] <- "protein_violinplot"
       check_save(p)
     })
   })
@@ -143,7 +173,69 @@ shinyServer(function(input, output, session) {
     check_save(p)
   })
   
+  output$markers_table <- DT::renderDataTable({
+    cell_type <- values$cell_type
+    gene <- values$gene
+    dt <- getMarkersTable(cell_type)
+    DT::datatable(
+      dt, extensions = 'Buttons',
+      options = list(
+        pageLength = 25,
+        scrollX = TRUE,
+        scrollY = "400px",
+        searchHighlight = T,
+        dom = '<"top"Bf>rt<"bottom"lip><"clear">',
+        buttons = list('print',
+                       list(
+                         extend =  "csv",
+                         title = paste0(values$study,"_samples")
+                       ), list(
+                         extend =  "pdf",
+                         title = paste0(values$study,"_samples")
+                       ))
+      ),
+      rownames = FALSE,
+      selection = list(
+        mode = 'single',
+        target = 'row',
+        selected = which(dt$gene == gene)
+      )
+    )
+  })
+  
   ### Extra features
+  # Download plots
+  # output$download_plots_button <- downloadHandler(filename = function(){
+  #   tab <- input$tabs
+  #   paste0(gsub("\\s", "_", tab), "_plots.RData")
+  # },
+  # content = function(file){
+  #   save(plots$distplot, file)
+  # }
+  # )
+  
+  # plots <- reactiveValues(
+  #   distplot = NULL,
+  #   dotplot = NULL,
+  #   protein_volcano = NULL,
+  #   gene_volcano = NULL,
+  #   solubility = NULL,
+  #   gene_violinplot = NULL,
+  #   protein_violinplot = NULL
+  # )
+  
+  #deal with selection from marker's table
+  observeEvent(input$markers_table_rows_selected, {
+    row_selected <- input$markers_table_rows_selected
+    
+    isolate(cell_type <- values$cell_type)
+    dt <- markers_table[cluster==cell_type, -c(which(colnames(markers_table)=="cluster")), with=F]
+    
+    new_gene_name <- dt[row_selected,gene]
+    values$gene <- new_gene_name
+  })
+  
+  
   # add clicking ability to gene_volcano
   observeEvent(event_data("plotly_click", source = "gene_volcano"), {
     withProgress(session = session, value = 0.5, {

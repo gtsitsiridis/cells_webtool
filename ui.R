@@ -1,119 +1,86 @@
-  # Define UI for application that plots random distributions
-  shinyUI(tagList(
-    includeCSS("www/style.css"),
-    dashboardPage(
-      dashboardHeader(title = "Mouse lung aging atlas"),
-      dashboardSidebar(
-        sidebarMenu(
-          menuItem("Overview",
-                   tabName = "overview"),
-          menuItem("Lung cell atlas", tabName = "lca"),
-          menuItem("Lung aging protein", tabName = "lap"),
-          menuItem("Lung aging mRNA", tabName = "lam"),
-          selectInput("gene", "Query gene/protein:", genes),
-          selectInput("cell_type", "Query cell type:", cell_types)
-        )
+# Define UI for application that plots random distributions
+shinyUI(tagList(
+  includeCSS("www/style.css"),
+  dashboardPage(
+    dashboardHeader(title = "Mouse lung aging atlas"
+                    # , tags$li(class="dropdown", downloadButton(label ="Download", outputId = "download_plots_button"))
+                    ),
+    dashboardSidebar(
+      sidebarMenu(
+        id = "tabs",
+        # menuItem("Overview",
+        #          tabName = "overview"),
+        menuItem("Lung cell atlas", tabName = "celltype_tab"),
+        menuItem("Lung aging protein", tabName = "solubility_tab"),
+        menuItem("Lung aging mRNA", tabName = "mRNA_tab")
+        
       ),
-      dashboardBody(tabItems(
-        # First tab content
-        tabItem(tabName = "overview",
-                htmlOutput("description")),
-        tabItem(tabName = "lca",
-                fluidRow(
-                  box(
-                    collapsible = TRUE,
-                    width = 8,
-                    plotOutput("distplot", height = "600px")
-                  ),
-                  box(
-                    collapsible = TRUE,
-                    width = 4,
-                    plotOutput("dotplot_1", height = "600px")
-                  )
-                )),
-        tabItem(tabName = "lap",
-                fluidRow(
-                  box(
-                    collapsible = TRUE,
-                    width = 8,
-                    plotOutput("protein_volcano", height = "600px")
-                  ),
-                  box(
-                    collapsible = TRUE,
-                    width = 4,
-                    plotOutput("dotplot_2", height = "600px")
-                  )
+      conditionalPanel("input.tabs != 'overview'",
+                       uiOutput("gene_selector")),
+      conditionalPanel("input.tabs == 'mRNA_tab'",
+                       uiOutput("cell_type_selector"))
+    ),
+    dashboardBody(
+      htmlOutput("help"),
+      tabItems(
+      # First tab content
+      # tabItem(tabName = "overview",
+      #         htmlOutput("description")),
+      tabItem(tabName = "celltype_tab",
+              fluidRow(
+                box(
+                  collapsible = TRUE,
+                  width = 4,
+                  plotOutput("dotplot_1", height = "600px")
                 ),
-                
-                fluidRow(
-                  box(
-                    collapsible = TRUE,
-                    width = 8,
-                    plotOutput("solubility", height = "600px")
-                  )
-                )),
-        tabItem(tabName = "lam",
-                fluidRow(
-                  box(
-                    collapsible = TRUE,
-                    plotlyOutput("gene_volcano", height = "600px"),
-                    width = 8
-                  ),
-                  box(
-                    collapsible = TRUE,
-                    plotOutput("dotplot_3", height = "600px"),
-                    width = 4
-                  )
-                  
+                box(
+                  collapsible = TRUE,
+                  width = 4,
+                  plotOutput("distplot", height = "600px")
                 ),
-                fluidRow(
-                  box(
-                    collapsible = TRUE,
-                    plotOutput("violinplot", height = "600px"),
-                    width = 8
-                  )
-                ))
-      ))
-    )
-    
-    # navbarPage(
-    #   id = "atlas",
-    #   header =
-    #     fluidRow(
-    #       class = "control-bar",
-    #       column(4,
-    #              selectInput("gene", "Query gene/protein:", genes), offset = 2),
-    #       column(4,
-    #              selectInput(
-    #                "cell_type", "Query cell type:", cell_types
-    #              ))
-    #     ),
-    #
-    #   # Application title
-    #   title = "Mouse lung aging atlas",
-    #
-    #   tabPanel("Overview",
-    #            htmlOutput("description")),
-    #   tabPanel("Lung cell atlas signatures",
-    #            fluidRow(
-    #              # Show a plot of the generated distribution
-    #              column(6, plotOutput("dotplot_1", height = 250)),
-    #              column(6, plotOutput("distplot"))
-    #            )),
-    #
-    #   tabPanel("Lung aging protein",
-    #            fluidRow(
-    #              # Show a plot of the generated distribution
-    #              column(4, plotOutput("dotplot_2")),
-    #              column(4, plotOutput("protein_volcano", height = 250)),
-    #              column(4, plotOutput("solubility"))
-    #            )),
-    #   tabPanel("Lung aging mRNA",
-    #            fluidRow(
-    #              # Show a plot of the generated distribution
-    #              column(4, plotOutput("dotplot_3")),
-    #              column(4, plotlyOutput("gene_volcano")),
-    #              column(4, plotOutput("violinplot"))
-    #            ))
-    # )
-  ))
+                box(
+                  collapsible = TRUE,
+                  width = 4,
+                  DT::dataTableOutput("markers_table", height = "600px")
+                )
+              )),
+      tabItem(tabName = "solubility_tab",
+              fluidRow(
+                box(
+                  collapsible = TRUE,
+                  width = 4,
+                  plotOutput("dotplot_2", height = "600px")
+                ),
+                box(
+                  collapsible = TRUE,
+                  width = 3,
+                  plotOutput("protein_violinplot", height = "600px")
+                ),
+                box(
+                  collapsible = TRUE,
+                  width = 5,
+                  plotOutput("solubility", height = "600px")
+                )
+              )),
+      
+      tabItem(tabName = "mRNA_tab",
+              fluidRow(
+                box(
+                  collapsible = TRUE,
+                  plotOutput("dotplot_3", height = "600px"),
+                  width = 4
+                ),
+                box(
+                  collapsible = TRUE,
+                  plotlyOutput("gene_volcano", height = "600px"),
+                  width = 5
+                ),
+                box(
+                  collapsible = TRUE,
+                  plotOutput("gene_violinplot", height = "600px"),
+                  width = 3
+                )
+              ))
+    ))
+  )
+))
