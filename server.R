@@ -257,7 +257,7 @@ shinyServer(function(input, output, session) {
     
     isolate(cell_type <- values$cell_type)
     dt <-
-      markers_table[cluster == cell_type,-c(which(colnames(markers_table) == "cluster")), with =
+      markers_table[cluster == cell_type, -c(which(colnames(markers_table) == "cluster")), with =
                       F]
     
     new_gene_name <- dt[row_selected, gene]

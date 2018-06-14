@@ -183,7 +183,7 @@ dotPlot <- function (gene_name = "Scgb1a1") {
     theme(
       axis.text.y = element_text(size = 13),
       plot.margin = unit(c(1, 1, 1, 1), "cm"),
-      legend.text = element_text(size = 13),
+      legend.text = element_text(size = 8),
       legend.title = element_text(size = 8),
       legend.position = c(0.75, 0.5),
       axis.title.x = element_blank(),

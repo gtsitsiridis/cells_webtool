@@ -14,8 +14,8 @@ shinyUI(tagList(
     dashboardSidebar(
       sidebarMenu(
         id = "tabs",
-        menuItem("Overview",
-                 tabName = "overview"),
+        # menuItem("Overview",
+        #          tabName = "overview"),
         menuItem("Lung cell type signatures", tabName = "celltype_tab"),
         menuItem("Lung aging protein", tabName = "solubility_tab"),
         menuItem("Lung aging mRNA", tabName = "mRNA_tab")
@@ -31,8 +31,8 @@ shinyUI(tagList(
       htmlOutput("help"),
       tabItems(
       # First tab content
-      tabItem(tabName = "overview",
-             HTML("<center><h1>Add description of the tool</h1></center>")),
+      # tabItem(tabName = "overview",
+      #        HTML("<center><h1>Add description of the tool</h1></center>")),
       tabItem(tabName = "celltype_tab",
               fluidRow(
                 box(
