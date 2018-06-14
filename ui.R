@@ -6,26 +6,30 @@ spinner <- function(ui_element){
 shinyUI(tagList(
   includeCSS("www/style.css"),
   dashboardPage(
-    dashboardHeader(title = "Mouse lung aging atlas"
+    dashboardHeader(titleWidth =1170,title = "Lung Aging Atlas – Schiller and Theis labs @ Helmholtz Zentrum München – German Research Center for Environmental Health"
                     , tags$li(class="dropdown",
 
                               conditionalPanel(condition= "input.tabs != 'overview'", downloadButton(label ="Download plots", class='btn-primary',outputId = "download_plots_button")))
                     ),
     dashboardSidebar(
+      width=250,
       sidebarMenu(
         id = "tabs",
         # menuItem("Overview",
         #          tabName = "overview"),
         menuItem("Lung cell type signatures", tabName = "celltype_tab"),
         menuItem("Lung aging protein", tabName = "solubility_tab"),
-        menuItem("Lung aging mRNA", tabName = "mRNA_tab")
+        menuItem("Lung aging mRNA", tabName = "mRNA_tab"),
+        menuItem("Lung aging – annotation enrichments", tabName = "enrichment_tab")
         
       ),
       
-      conditionalPanel("input.tabs != 'overview'",
+      conditionalPanel("input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'|input.tabs=='solubility_tab'",
                        uiOutput("gene_selector")),
-      conditionalPanel("input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'",
-                       uiOutput("cell_type_selector"))
+      conditionalPanel("input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'|input.tabs=='enrichment_tab'",
+                       uiOutput("cell_type_selector")),
+      conditionalPanel("input.tabs=='enrichment_tab'",
+                       uiOutput("enrichment_type_selector"))
     ),
     dashboardBody(
       htmlOutput("help"),
@@ -88,7 +92,11 @@ shinyUI(tagList(
                   spinner( plotOutput("gene_violinplot", height = "600px")),
                   width = 3
                 )
-              ))
+              )),
+      tabItem(tabName = "enrichment_tab",
+              fluidRow(collapsible = TRUE,
+                box(width =12,spinner( DT::dataTableOutput("enrichment_table")))))
+      
     ))
   )
 ))

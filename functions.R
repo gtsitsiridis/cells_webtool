@@ -109,9 +109,12 @@ dotPlot <- function (gene_name = "Scgb1a1") {
   
   # remove cell types from cell info
   
-  data.to.plot <- data.frame(expression)
+  data.to.plot <- data.table(expression)
   colnames(x = data.to.plot) <- gene_name
   data.to.plot$id <- cell_info$celltype
+  # filtering step: is there a cluster that has at least 10 cells.
+  if(data.to.plot[,.N,by=id][,sum(N > 10) == 0])
+    return(emptyPlot())
   data.to.plot <-
     data.to.plot %>% gather(key = genes.plot, value = expression,-c(id))
   data.to.plot <- data.to.plot %>% group_by(id, genes.plot) %>%
@@ -247,7 +250,7 @@ genTSNEplot <- function(gene_name = 'Frem1') {
   gene[which(gene < gene.min)] <- gene.min
   H5close()
   dt <- cbind(tsne_coord, expression = gene)
-  
+  high <- "darkblue"
   if (all(gene == 0)) {
     high = "grey"
     
@@ -348,4 +351,13 @@ emptyPlot <- function() {
     theme(plot.margin = unit(c(2, 2, 2, 2), "cm")) 
   class(p)[4] <- "empty_plot"
   p
+}
+
+getEnrichmentTable <- function(cell_type="Type_2_pneumocytes", enrichment_type = "All"){
+  dt <- copy(enrichment_table)
+  dt <- enrichment_table[`Cell type`==cell_type ]
+  if(enrichment_type!="All"){
+    dt <- dt[Type==enrichment_type ]
+  }
+  dt
 }

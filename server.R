@@ -44,8 +44,8 @@ shinyServer(function(input, output, session) {
     protein_violinplot = NULL
   )
   
-  values <- reactiveValues(gene = genes[1],
-                           cell_type = cell_types[1])
+  values <- reactiveValues(gene = NULL,
+                           cell_type = NULL)
   
   ### Pass input to values
   observeEvent(values$gene, {
@@ -76,6 +76,9 @@ shinyServer(function(input, output, session) {
   })
   output$gene_selector <- renderUI({
     selectInput("gene", "Query gene/protein:", genes)
+  }) 
+  output$enrichment_type_selector <- renderUI({
+    selectInput("enrichment_type", "Query enrichment type:", enrichment_types)
   })
   
   ### Create plots
@@ -190,11 +193,11 @@ shinyServer(function(input, output, session) {
           'print',
           list(
             extend =  "csv",
-            title = paste0(values$study, "_samples")
+            title = "file"
           ),
           list(
             extend =  "pdf",
-            title = paste0(values$study, "_samples")
+            title = "file"
           )
         )
       ),
@@ -204,6 +207,35 @@ shinyServer(function(input, output, session) {
         target = 'row',
         selected = which(dt$gene == gene)
       )
+    )
+  })
+  output$enrichment_table <- DT::renderDataTable({
+    cell_type <- values$cell_type
+    enrichment_type <- input$enrichment_type
+    dt <- getEnrichmentTable(cell_type, enrichment_type)
+    DT::datatable(
+      dt,
+      extensions = 'Buttons',
+      options = list(
+        pageLength = 25,
+        scrollX = TRUE,
+        scrollY = "100%",
+        searchHighlight = T,
+        dom = '<"top"Bf>rt<"bottom"lip><"clear">',
+        buttons = list(
+          'print',
+          list(
+            extend =  "csv",
+            title = "file.csv"
+          ),
+          list(
+            extend =  "pdf",
+            title = "file.pdf"
+          )
+        )
+      ),
+      rownames = FALSE,
+      selection = "none"
     )
   })
   
