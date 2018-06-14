@@ -3,7 +3,9 @@ shinyUI(tagList(
   includeCSS("www/style.css"),
   dashboardPage(
     dashboardHeader(title = "Mouse lung aging atlas"
-                    # , tags$li(class="dropdown", downloadButton(label ="Download", outputId = "download_plots_button"))
+                    # , tags$li(class="dropdown", 
+                    #           
+                    #           conditionalPanel(downloadButton("input.tabs != 'overview'", label ="Download plots", class='btn-primary',outputId = "download_plots_button")))
                     ),
     dashboardSidebar(
       sidebarMenu(
@@ -17,7 +19,7 @@ shinyUI(tagList(
       ),
       conditionalPanel("input.tabs != 'overview'",
                        uiOutput("gene_selector")),
-      conditionalPanel("input.tabs == 'mRNA_tab'",
+      conditionalPanel("input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'",
                        uiOutput("cell_type_selector"))
     ),
     dashboardBody(
