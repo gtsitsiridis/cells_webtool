@@ -9,7 +9,7 @@ shinyUI(tagList(
     dashboardHeader(titleWidth =1170,title = "Lung Aging Atlas – Schiller and Theis labs @ Helmholtz Zentrum München – German Research Center for Environmental Health"
                     , tags$li(class="dropdown",
 
-                              conditionalPanel(condition= "input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'|input.tabs=='solubility_tab'", downloadButton(label ="Download plots", class='btn-primary',outputId = "download_plots_button")))
+                              conditionalPanel(condition= "input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'|input.tabs=='solubility_tab'|input.tabs=='enrichment_tab'", downloadButton(label ="Download plots", class='btn-primary',outputId = "download_plots_button")))
                     ),
     dashboardSidebar(
       width=250,
@@ -95,7 +95,9 @@ shinyUI(tagList(
               )),
       tabItem(tabName = "enrichment_tab",
               fluidRow(collapsible = TRUE,
-                box(width =12,spinner( DT::dataTableOutput("enrichment_table")))))
+                box(width =6,spinner( DT::dataTableOutput("enrichment_table",height = "700px"))),
+                box(width =6,spinner( plotOutput("enrichment_barplot", height= "700px")))
+                ))
       
     ))
   )

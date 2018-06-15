@@ -169,11 +169,20 @@ shinyServer(function(input, output, session) {
       check_save(p)
     })
   })
-  output$protein_volcano <- renderPlot({
-    p <- 1
-    class(p) <- "try-error"
-    class(p)[3] <- "protein_volcano"
-    check_save(p)
+  
+  output$enrichment_barplot <- renderPlot({
+    withProgress(session = session, value = 0.5, {
+      setProgress(message = "Calculation in progress")
+      cell_type <- values$cell_type
+      enrichment_type <- input$enrichment_type
+      if(is.null(enrichment_type)){
+        return()
+      }
+      p <- try(enrichmentBarPlot(cell_type, enrichment_type), silent = F)
+      print(p)
+      class(p)[3] <- "enrichment_table"
+      check_save(p)
+    })
   })
   
   output$markers_table <- DT::renderDataTable({
@@ -212,6 +221,9 @@ shinyServer(function(input, output, session) {
   output$enrichment_table <- DT::renderDataTable({
     cell_type <- values$cell_type
     enrichment_type <- input$enrichment_type
+    if(is.null(enrichment_type)){
+      return()
+    }
     dt <- getEnrichmentTable(cell_type, enrichment_type)
     DT::datatable(
       dt,
@@ -219,7 +231,7 @@ shinyServer(function(input, output, session) {
       options = list(
         pageLength = 25,
         scrollX = TRUE,
-        scrollY = "100%",
+        scrollY = "500px",
         searchHighlight = T,
         dom = '<"top"Bf>rt<"bottom"lip><"clear">',
         buttons = list(
@@ -255,6 +267,8 @@ shinyServer(function(input, output, session) {
           plot_names <- c("dotplot", "solubility", "protein_violinplot")
         } else if (tab == "mRNA_tab") {
           plot_names <- c("dotplot", "gene_volcano", "gene_violinplot")
+        }else if (tab == "enrichment_tab") {
+          plot_names <- c("enrichment_barplot")
         }
         files <- sapply(plot_names, function(x) {
           p <- plots[[x]]

@@ -357,5 +357,25 @@ getEnrichmentTable <- function(cell_type="Type_2_pneumocytes", enrichment_type =
   if(enrichment_type!="All"){
     dt <- dt[Type==enrichment_type ]
   }
-  dt
+  dt[,-1, with=F]
 }
+
+enrichmentBarPlot <- function(cell_type = "Type_2_pneumocytes", enrichment_type = "All"){
+  dt <- copy(enrichment_table)
+  dt <- enrichment_table[`Cell type`==cell_type ]
+  if(enrichment_type!="All"){
+    dt <- dt[Type==enrichment_type ]
+  }
+  if(nrow(dt)==0){return(emptyPlot())}
+  dt <- dt[, .(Name, `Benj. Hoch. FDR`)]
+  dt <- dt[order(`Benj. Hoch. FDR`)][1:min(10, nrow(dt))]
+  dt[, transPvalue := -log10(`Benj. Hoch. FDR`)]
+  
+  
+  ggplot(dt) + geom_bar(aes(x = Name, y = transPvalue), stat="identity") +
+    theme(axis.title.y = element_blank(), axis.text.y = element_text(size = 13)) + 
+    coord_flip() + labs(y=expression(paste("-log"[10], " p-value")))
+}
+
+
+
