@@ -124,10 +124,10 @@ shinyUI(tagList(
                 fluidRow(
                   collapsible = TRUE,
                   box(width = 6, spinner(
-                    DT::dataTableOutput("enrichment_table", height = "700px")
+                    DT::dataTableOutput("enrichment_table", height = "600px")
                   )),
                   box(width = 6, spinner(
-                    plotOutput("enrichment_barplot", height = "700px")
+                    plotOutput("enrichment_barplot", height = "600px")
                   ))
                 ))
         

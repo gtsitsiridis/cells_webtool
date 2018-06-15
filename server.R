@@ -233,7 +233,7 @@ shinyServer(function(input, output, session) {
       options = list(
         pageLength = 25,
         scrollX = TRUE,
-        scrollY = "500px",
+        scrollY = "400px",
         searchHighlight = T,
         dom = '<"top"Bf>rt<"bottom"lip><"clear">',
         buttons = list(
