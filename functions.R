@@ -1,5 +1,3 @@
-
-
 getMarkersTable <- function(cell_type = "Alveolar_macrophage") {
   dt <-
     markers_table[cluster == cell_type,-c(which(colnames(markers_table) == "cluster")), with =

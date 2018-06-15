@@ -44,32 +44,32 @@ shinyServer(function(input, output, session) {
     protein_violinplot = NULL
   )
   
-  values <- reactiveValues(gene = NULL,
-                           cell_type = NULL)
+  values <- reactiveValues(gene = genes[1],
+                           cell_type = cell_types[1])
   
   ### Pass input to values
-  observeEvent(values$gene, {
-    new_gene_name <- values$gene
-    updateSelectInput(session,
-                      "gene", "Query gene/protein:", genes, selected = new_gene_name)
-  })
+  # observeEvent(values$gene, {
+  #   new_gene_name <- values$gene
+  #   updateSelectInput(session,
+  #                     "gene", "Query gene/protein:", genes, selected = new_gene_name)
+  # })
   observeEvent(input$gene, {
     new_gene_name <- input$gene
     values$gene <- new_gene_name
   })
-  observeEvent(values$cell_type, {
-    new_cell_type <- values$cell_type
-    updateSelectInput(session,
-                      "cell_type",
-                      "Query cell type:",
-                      cell_types,
-                      selected = new_cell_type)
-  })
+  # observeEvent(values$cell_type, {
+  #   new_cell_type <- values$cell_type
+  #   updateSelectInput(session,
+  #                     "cell_type",
+  #                     "Query cell type:",
+  #                     cell_types,
+  #                     selected = new_cell_type)
+  # })
   observeEvent(input$cell_type, {
     new_cell_type <- input$cell_type
     values$cell_type <- new_cell_type
   })
-  
+
   ### Define gene and cell type selectors
   output$cell_type_selector <- renderUI({
     selectInput("cell_type", "Query cell type:", cell_types)
@@ -178,7 +178,7 @@ shinyServer(function(input, output, session) {
   
   output$markers_table <- DT::renderDataTable({
     cell_type <- values$cell_type
-    gene <- values$gene
+    # gene <- values$gene
     dt <- getMarkersTable(cell_type)
     DT::datatable(
       dt,
@@ -204,8 +204,8 @@ shinyServer(function(input, output, session) {
       rownames = FALSE,
       selection = list(
         mode = 'single',
-        target = 'row',
-        selected = which(dt$gene == gene)
+        target = 'row'
+        # selected = which(dt$gene == gene)
       )
     )
   })
@@ -267,21 +267,8 @@ shinyServer(function(input, output, session) {
         })
         files <- files[!is.na(files)]
         zip(file, files)
-        # plots <-
-        # a <- plots$dotplot
-        # save(a, file=file)
       }
     )
-  
-  # plots <- reactiveValues(
-  #   distplot = NULL,
-  #   dotplot = NULL,
-  #   protein_volcano = NULL,
-  #   gene_volcano = NULL,
-  #   solubility = NULL,
-  #   gene_violinplot = NULL,
-  #   protein_violinplot = NULL
-  # )
   
   #deal with selection from marker's table
   observeEvent(input$markers_table_rows_selected, {
