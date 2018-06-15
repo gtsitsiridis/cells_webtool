@@ -10,6 +10,8 @@ shinyServer(function(input, output, session) {
     HTML('<center><strong><p>mRNA_tab help</strong></p></center>')
   help[["overview"]] <-
     HTML('')
+  help[["enrichment_tab"]] <-
+    HTML('<center><strong><p>enrichment_tab help</strong></p></center>')
   
   output$description <-
     renderUI(HTML("<center><h1>Add description of the tool</h1></center>"))

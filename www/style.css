@@ -8,6 +8,19 @@
 .shiny-output-error:before { visibility: hidden; }
 
 #download_plots_button{
-	margin-top: 10px;
+	margin-bottom: 15px;
 	font-weight: bold;
 }
+#help{
+	margin-bottom: 15px;
+	margin-top:10px;
+	margin-bottom: 15px;
+}
+
+.main-header {max-height: 80px}
+.main-header .logo {height: 80px;}
+.sidebar-toggle {height: 80px; padding-top: 1px !important;}
+.navbar {min-height:80px !important}
+.logo {padding-top:15px !important}
+.sidebar-toggle {padding-top:30px !important}
+.left-side, .main-sidebar {padding-top: 80px}
