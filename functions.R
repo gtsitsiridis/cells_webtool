@@ -103,16 +103,15 @@ dotPlot <- function (gene_name = "Scgb1a1") {
   # Load gene expression
   expression <-
     h5read("data/AgingData.h5", name = as.character(gene_name))
-  expression <- (expression - mean(expression)) / sd(expression)
-  
-  # remove cell types from cell info
   
   data.to.plot <- data.table(expression)
-  colnames(x = data.to.plot) <- gene_name
+  colnames(x = data.to.plot) <- "expression"
   data.to.plot$id <- cell_info$celltype
   # filtering step: is there a cluster that has at least 10 cells.
-  if(data.to.plot[,.N,by=id][,sum(N > 10) == 0])
+  if(data.to.plot[,sum(expression>0),by=id][,sum(V1 >= 5) == 0])
     return(emptyPlot())
+  data.to.plot[, expression := (expression - mean(expression)) / sd(expression)]
+  setnames(data.to.plot, "expression", gene_name)
   data.to.plot <-
     data.to.plot %>% gather(key = genes.plot, value = expression,-c(id))
   data.to.plot <- data.to.plot %>% group_by(id, genes.plot) %>%
