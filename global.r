@@ -48,6 +48,7 @@ bad <-
     "Gamma-Delta_T_cells",
     "low_quality_cells")
 cell_types <- cell_types[-which(cell_types %in% bad)]
+cell_types <- cell_types[order(cell_types)] 
 # Load tsne file
 tsne_coord <- read.table(tSNE.file, sep = "\t")
 # Load gene file
