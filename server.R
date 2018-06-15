@@ -239,9 +239,9 @@ shinyServer(function(input, output, session) {
         buttons = list(
           'print',
           list(extend =  "csv",
-               title = "file.csv"),
+               title = "file"),
           list(extend =  "pdf",
-               title = "file.pdf")
+               title = "file")
         )
       ),
       rownames = FALSE,
