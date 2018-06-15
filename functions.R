@@ -8,7 +8,7 @@ getMarkersTable <- function(cell_type = "Alveolar_macrophage") {
 
 
 # Volcano plot
-plot_volcano <- function(de_table, cell_type, gene_name) {
+plot_volcano <- function(de_table=copy(gene_de_table),cell_type = "Alveolar_macrophage", gene_name="Frem1") {
   # extract cell type info
   pval_keyword <- "p_val"
   fc_keyword <- "avg_logFC"
@@ -47,7 +47,7 @@ plot_volcano <- function(de_table, cell_type, gene_name) {
       aes(x = log2FoldChange, y = -log10(pvalue)),
       colour = "red",
       size = 2
-    ) +
+    ) + 
     geom_text_repel(data = de.dt[de.dt$colour == "selected",],
                     aes(label = Gene),
                     colour = "red",

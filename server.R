@@ -71,16 +71,18 @@ shinyServer(function(input, output, session) {
     new_cell_type <- input$cell_type
     values$cell_type <- new_cell_type
   })
-
+  
   ### Define gene and cell type selectors
   output$cell_type_selector <- renderUI({
     selectInput("cell_type", "Query cell type:", cell_types)
   })
   output$gene_selector <- renderUI({
     selectInput("gene", "Query gene/protein:", genes)
-  }) 
+  })
   output$enrichment_type_selector <- renderUI({
-    selectInput("enrichment_type", "Query enrichment type:", enrichment_types)
+    selectInput("enrichment_type",
+                "Query enrichment type:",
+                enrichment_types)
   })
   
   ### Create plots
@@ -104,11 +106,15 @@ shinyServer(function(input, output, session) {
             ,
             silent = T)
       class(p)[3] <- "gene_volcano"
-      ggplotly(
+      p <- ggplotly(
         check_save(p),
         tooltip = c("Gene", "-log10(pvalue)", "log2FoldChange"),
         source = "gene_volcano"
       )
+      for (i in 1:length(p$x$data)) {
+        p$x$data[[i]]$showlegend <- F
+      }
+      p
     })
   })
   
@@ -177,10 +183,11 @@ shinyServer(function(input, output, session) {
       setProgress(message = "Calculation in progress")
       cell_type <- values$cell_type
       enrichment_type <- input$enrichment_type
-      if(is.null(enrichment_type)){
+      if (is.null(enrichment_type)) {
         return()
       }
-      p <- try(enrichmentBarPlot(cell_type, enrichment_type), silent = F)
+      p <-
+        try(enrichmentBarPlot(cell_type, enrichment_type), silent = F)
       print(p)
       class(p)[3] <- "enrichment_barplot"
       check_save(p)
@@ -202,28 +209,21 @@ shinyServer(function(input, output, session) {
         dom = '<"top"Bf>rt<"bottom"lip><"clear">',
         buttons = list(
           'print',
-          list(
-            extend =  "csv",
-            title = "file"
-          ),
-          list(
-            extend =  "pdf",
-            title = "file"
-          )
+          list(extend =  "csv",
+               title = "file"),
+          list(extend =  "pdf",
+               title = "file")
         )
       ),
       rownames = FALSE,
-      selection = list(
-        mode = 'single',
-        target = 'row'
-        # selected = which(dt$gene == gene)
-      )
+      selection = list(mode = 'single',
+                       target = 'row')
     )
   })
   output$enrichment_table <- DT::renderDataTable({
     cell_type <- values$cell_type
     enrichment_type <- input$enrichment_type
-    if(is.null(enrichment_type)){
+    if (is.null(enrichment_type)) {
       return()
     }
     dt <- getEnrichmentTable(cell_type, enrichment_type)
@@ -238,14 +238,10 @@ shinyServer(function(input, output, session) {
         dom = '<"top"Bf>rt<"bottom"lip><"clear">',
         buttons = list(
           'print',
-          list(
-            extend =  "csv",
-            title = "file.csv"
-          ),
-          list(
-            extend =  "pdf",
-            title = "file.pdf"
-          )
+          list(extend =  "csv",
+               title = "file.csv"),
+          list(extend =  "pdf",
+               title = "file.pdf")
         )
       ),
       rownames = FALSE,
@@ -269,7 +265,7 @@ shinyServer(function(input, output, session) {
           plot_names <- c("dotplot", "solubility", "protein_violinplot")
         } else if (tab == "mRNA_tab") {
           plot_names <- c("dotplot", "gene_volcano", "gene_violinplot")
-        }else if (tab == "enrichment_tab") {
+        } else if (tab == "enrichment_tab") {
           plot_names <- c("enrichment_barplot")
         }
         files <- sapply(plot_names, function(x) {
