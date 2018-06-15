@@ -180,7 +180,7 @@ shinyServer(function(input, output, session) {
       }
       p <- try(enrichmentBarPlot(cell_type, enrichment_type), silent = F)
       print(p)
-      class(p)[3] <- "enrichment_table"
+      class(p)[3] <- "enrichment_barplot"
       check_save(p)
     })
   })
