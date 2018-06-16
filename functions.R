@@ -72,8 +72,8 @@ genBoxplot_protein <- function(protein = "Bpifa1") {
   )) +
     geom_boxplot() + geom_jitter(colour = "black") +
     scale_color_manual(values = c(`3m` = "blue", `24m` = "red")) +
-    scale_fill_manual(values = c(`3m` = "white", `24m` = "white")) +
-    xlab("") + ylab("MS intensity") + ggtitle(protein)
+    scale_fill_manual(values = c(`3m` = "white", `24m` = "white")) + theme(axis.title.x = element_blank()) +
+    ylab("MS intensity") + ggtitle(protein) + guides(col=F, fill=F)
 }
 
 # Dot plot
@@ -212,7 +212,7 @@ genBoxplot <-
     )) + geom_violin()  + geom_jitter(colour = "black") +
       scale_color_manual(values = c(`3m` = "blue", `24m` = "red")) +
       scale_fill_manual(values = c(`3m` = "blue", `24m` = "red")) +
-      xlab("") + ylab("UMI counts [log2]") + ggtitle(gene_name)
+      xlab("") + ylab("UMI counts [log2]") + ggtitle(gene_name) + guides(color=F, fill =F)
   }
 
 # tSNE plot

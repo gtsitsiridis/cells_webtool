@@ -15,6 +15,9 @@ library(plotly)
 library(tidyr)
 library(shiny)
 library(Seurat)
+library(parallel)
+library(future)
+library(shinyjs)
 
 
 source("functions.R")
@@ -65,4 +68,3 @@ print(paste("Genes file:",genes.file))
 print(paste("Gene DE file:",gene_de.file))
 print(paste("Cell info file:",cell_info.file))
 print(paste("Expression file:",expression.file))
-

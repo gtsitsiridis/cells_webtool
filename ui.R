@@ -1,15 +1,17 @@
 # Define UI for application that plots random distributions
 spinner <- function(ui_element) {
-  withSpinner(ui_element, type = 2, color.background = "white")
+  withSpinner(ui_element, type = 3, color.background = "white")
 }
 
 shinyUI(tagList(
   includeCSS("www/style.css"),
+  useShinyjs(),
+
   dashboardPage(
     skin = "black",
     dashboardHeader(
-      titleWidth = 407,
-      title = HTML("Lung Aging Atlas – Schiller and Theis labs"),
+      titleWidth = 1000,
+      title = HTML("Lung Aging Atlas – Schiller and Theis labs @ Helmholtz Zentrum München – German Research Center for Environmental Health"),
       tags$li(
         class = "dropdown",
         HTML(
@@ -19,10 +21,15 @@ shinyUI(tagList(
     ),
     dashboardSidebar(
       width = 250,
+      div(
+        id = "loading-content1",class="loading-content",
+        style="z-index:10;"
+      ),
       sidebarMenu(
         id = "tabs",
         # menuItem("Overview",
         #          tabName = "overview"),
+        
         menuItem("Lung cell type signatures", tabName = "celltype_tab"),
         menuItem("Lung aging protein", tabName = "solubility_tab"),
         menuItem("Lung aging mRNA", tabName = "mRNA_tab"),
@@ -32,11 +39,9 @@ shinyUI(tagList(
       
       conditionalPanel(
         "input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'|input.tabs=='solubility_tab'",
-        withSpinner(
           uiOutput("gene_selector"),
           type = 2,
           color.background = "#222d32"
-        )
       ),
       conditionalPanel(
         "input.tabs == 'mRNA_tab' | input.tabs == 'celltype_tab'|input.tabs=='enrichment_tab'",
@@ -48,6 +53,12 @@ shinyUI(tagList(
       )
     ),
     dashboardBody(
+      div(
+        id = "loading-content2",class="loading-content",
+        h2("Loading..."), HTML("<img src='spinner.gif' style='padding-top:10px;padding-right:10px;' height='70'/>"
+        ),
+        style="z-index:10;"
+      ),
       fluidRow(column(10, htmlOutput("help")), column(
         2,
         conditionalPanel(
@@ -68,15 +79,20 @@ shinyUI(tagList(
                 fluidRow(
                   box(
                     collapsible = TRUE,
-                    width = 4,
-                    spinner(plotOutput("dotplot_1", height = "600px"))
-                  )
-                  ,
-                  box(
-                    collapsible = TRUE,
-                    width = 4,
-                    spinner(plotOutput("distplot", height = "600px"))
+                    width = 8,
+                    spinner(plotOutput("celltype_panel", height = "600px"))
                   ),
+                  # box(
+                  #   collapsible = TRUE,
+                  #   width = 4,
+                  #   spinner(plotOutput("dotplot_1", height = "600px"))
+                  # )
+                  # ,
+                  # box(
+                  #   collapsible = TRUE,
+                  #   width = 4,
+                  #   spinner(plotOutput("distplot", height = "600px"))
+                  # ),
                   box(
                     collapsible = TRUE,
                     width = 4,
@@ -87,19 +103,25 @@ shinyUI(tagList(
                 fluidRow(
                   box(
                     collapsible = TRUE,
-                    width = 4,
-                    spinner(plotOutput("dotplot_2", height = "600px"))
-                  ),
-                  box(
-                    collapsible = TRUE,
-                    width = 3,
-                    spinner(plotOutput("protein_violinplot", height = "600px"))
-                  ),
-                  box(
-                    collapsible = TRUE,
-                    width = 5,
-                    spinner(plotOutput("solubility", height = "600px"))
+                    width = 12,
+                    spinner(plotOutput("solubility_panel", height = "600px"))
                   )
+                  # box(
+                  #   collapsible = TRUE,
+                  #   width = 4,
+                  #   spinner(plotOutput("dotplot_2", height = "600px"))
+                  # )
+                  # ,
+                  # box(
+                  #   collapsible = TRUE,
+                  #   width = 3,
+                  #   spinner(plotOutput("protein_violinplot", height = "600px"))
+                  # ),
+                  # box(
+                  #   collapsible = TRUE,
+                  #   width = 5,
+                  #   spinner(plotOutput("solubility", height = "600px"))
+                  # )
                 )),
         
         tabItem(tabName = "mRNA_tab",
@@ -111,7 +133,7 @@ shinyUI(tagList(
                   ),
                   box(
                     collapsible = TRUE,
-                    spinner(plotlyOutput("gene_volcano", height = "600px")),
+                    plotlyOutput("gene_volcano", height = "600px"),
                     width = 5
                   ),
                   box(
