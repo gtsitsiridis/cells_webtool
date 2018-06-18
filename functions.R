@@ -376,11 +376,12 @@ enrichmentBarPlot <- function(cell_type = "Type_2_pneumocytes", enrichment_type 
   dt[, up := Score > 0]
   # dt[, transPvalue := -log10(`Benj. Hoch. FDR`)]
   
+  title <- paste(cell_type, ifelse(enrichment_type=="All", "", paste0(enrichment_type)), sep = "")
   
   ggplot(dt) + geom_bar(aes(x = Name, y = Score, fill = up),position = position_dodge(width=.1),stat="identity") +
     theme(axis.title.y = element_blank(), axis.text.y = element_text(size = 13)) + 
     coord_flip() + labs(y="Score") + scale_fill_manual(values = c(`TRUE`="green", `FALSE` = "red"))+
-    guides(fill=F) + ggtitle(cell_type) + scale_y_continuous(limits = c(-1,1)) 
+    guides(fill=F) + ggtitle(title) + scale_y_continuous(limits = c(-1,1)) 
   # +
   #   scale_x_discrete(expand=c(0,-.5))
   }
