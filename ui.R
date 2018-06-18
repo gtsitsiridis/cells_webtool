@@ -34,7 +34,6 @@ shinyUI(tagList(
         menuItem("Lung aging protein", tabName = "solubility_tab"),
         menuItem("Lung aging mRNA", tabName = "mRNA_tab"),
         menuItem("Lung aging – annotation enrichments", tabName = "enrichment_tab")
-        
       ),
       
       conditionalPanel(
@@ -50,8 +49,10 @@ shinyUI(tagList(
       conditionalPanel(
         "input.tabs=='enrichment_tab'",
         uiOutput("enrichment_type_selector")
-      )
+      ),
+      HTML("<a id='github-btn'href='https://github.com/gtsitsiridis/lung_aging_atlas' target='_blank'><i class='fa fa-github'></i></a>")
     ),
+    
     dashboardBody(
       div(
         id = "loading-content2",class="loading-content",
@@ -146,10 +147,10 @@ shinyUI(tagList(
                 fluidRow(
                   collapsible = TRUE,
                   box(width = 6, spinner(
-                    DT::dataTableOutput("enrichment_table", height = "600px")
+                    DT::dataTableOutput("enrichment_table", height = "900px")
                   )),
                   box(width = 6, spinner(
-                    plotOutput("enrichment_barplot", height = "600px")
+                    plotOutput("enrichment_barplot", height = "900px")
                   ))
                 ))
         

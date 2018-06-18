@@ -264,7 +264,7 @@ shinyServer(function(input, output, session) {
       options = list(
         pageLength = 25,
         scrollX = TRUE,
-        scrollY = "400px",
+        scrollY = "700px",
         searchHighlight = T,
         dom = '<"top"Bf>rt<"bottom"lip><"clear">',
         buttons = list(
@@ -335,6 +335,9 @@ shinyServer(function(input, output, session) {
         paste0(gsub("\\s", "_", tab), "_plots.zip")
       },
       content = function(file) {
+        owd <- setwd(tempdir())
+        on.exit(setwd(owd))
+        
         isolate(tab <- input$tabs)
         if (tab == "celltype_tab") {
           plot_names <- c("dotplot", "distplot")

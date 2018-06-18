@@ -18,13 +18,13 @@
 	margin-bottom: 15px;
 }
 
-.main-header {max-height: 80px;}
+.main-header {max-height: 80px;position: fixed;  width:100%;}
 .main-header .logo {height: 80px;  font-size: 17px;}
 .sidebar-toggle {height: 80px; padding-top: 30px !important;}
 .navbar {min-height:80px !important}
 .logo {padding-top:15px !important}
-.left-side, .main-sidebar {padding-top: 80px}
-.content{padding-top: 0px!important}
+.left-side, .main-sidebar {padding-top: 80px; position: fixed;}
+.content{padding-top: 80px!important}
 
 .loading-content {
   position: absolute;
@@ -37,3 +37,22 @@
   text-align: center;
   color: #000000;
 }
+
+#github-btn {
+	color: white;
+	margin-top:.5em;
+	margin-top:.5em;
+	margin-left: .5em;
+	font-size: 40px;
+	position: absolute;
+	top: 90%;
+	background-color:#222d32;
+}
+
+#github-btn:hover {
+    opacity:.5;
+}
+
+
+
+

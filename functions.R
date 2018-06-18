@@ -241,10 +241,10 @@ genBoxplot <-
 genTSNEplot <- function(gene_name = 'Frem1') {
   gene <-
     h5read(expression.file, name = gene_name)
-  gene.min <- quantile(gene, 0.01)
-  gene.max <- quantile(gene, 0.99)
-  gene[which(gene > gene.max)] <- gene.max
-  gene[which(gene < gene.min)] <- gene.min
+  # gene.min <- quantile(gene, 0.01)
+  # gene.max <- quantile(gene, 0.99)
+  # gene[which(gene > gene.max)] <- gene.max
+  # gene[which(gene < gene.min)] <- gene.min
   H5close()
   dt <- cbind(tsne_coord, expression = gene)
   high <- "darkblue"
@@ -254,7 +254,7 @@ genTSNEplot <- function(gene_name = 'Frem1') {
   }
   ggplot(dt) + geom_point(aes(tSNE_1, tSNE_2, col = gene), alpha = .5) +
     guides(col = F) +
-    ggtitle(gene_name) +    scale_color_continuous(low = "grey", high = high)
+    ggtitle(gene_name) + scale_color_continuous(low = "grey", high = high)
   
 }
 
@@ -358,7 +358,7 @@ getEnrichmentTable <- function(cell_type="Type_2_pneumocytes", enrichment_type =
   }
   dt[,-1, with=F]
 }
-
+ 
 enrichmentBarPlot <- function(cell_type = "Type_2_pneumocytes", enrichment_type = "All"){
   dt <- copy(enrichment_table)
   dt <- enrichment_table[`Cell type`==cell_type ]
@@ -366,15 +366,24 @@ enrichmentBarPlot <- function(cell_type = "Type_2_pneumocytes", enrichment_type 
     dt <- dt[Type==enrichment_type ]
   }
   if(nrow(dt)==0){return(emptyPlot())}
-  dt <- dt[, .(Name, `Benj. Hoch. FDR`)]
-  dt <- dt[order(`Benj. Hoch. FDR`)][1:min(10, nrow(dt))]
-  dt[, transPvalue := -log10(`Benj. Hoch. FDR`)]
+  dt <- dt[, .(Name, `Score`)]
+  dt1 <- dt[Score>0][order(`Score`, decreasing = T)][1:min(10, .N)]
+  dt2 <- dt[Score<0][order(`Score`, decreasing = F)][1:min(10, .N)]
+  dt <- rbind(dt2, dt1)
+  dt <- dt[order(Score, decreasing = F)]
+  dt[, Name := gsub("(.{30,}?)\\s", "\\1\n", Name)]
+  dt[, Name := factor(Name, levels = dt$Name)]
+  dt[, up := Score > 0]
+  # dt[, transPvalue := -log10(`Benj. Hoch. FDR`)]
   
   
-  ggplot(dt) + geom_bar(aes(x = Name, y = transPvalue), stat="identity") +
+  ggplot(dt) + geom_bar(aes(x = Name, y = Score, fill = up),position = position_dodge(width=.1),stat="identity") +
     theme(axis.title.y = element_blank(), axis.text.y = element_text(size = 13)) + 
-    coord_flip() + labs(y=expression(paste("-log"[10], " p-value")))
-}
+    coord_flip() + labs(y="Score") + scale_fill_manual(values = c(`TRUE`="green", `FALSE` = "red"))+
+    guides(fill=F) + ggtitle(cell_type) + scale_y_continuous(limits = c(-1,1)) 
+  # +
+  #   scale_x_discrete(expand=c(0,-.5))
+  }
 
 
 
