@@ -49,8 +49,9 @@ shinyUI(tagList(
       conditionalPanel(
         "input.tabs=='enrichment_tab'",
         uiOutput("enrichment_type_selector")
-      ),
-      HTML("<a id='github-btn'href='https://github.com/gtsitsiridis/lung_aging_atlas' target='_blank'><i class='fa fa-github'></i></a>")
+      )
+      # ,
+      # HTML("<a id='github-btn'href='' target='_blank'><i class='fa fa-github'></i></a>")
     ),
     
     dashboardBody(
