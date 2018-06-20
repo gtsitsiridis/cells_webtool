@@ -13,18 +13,18 @@ shinyServer(function(input, output, session) {
   help <- list()
   
   help[["celltype_tab"]] <-
-    HTML('<center><strong><p>celltype_tab help</strong></p></center>')
+    HTML('<center><strong><p></strong></p></center>')
   help[["solubility_tab"]] <-
-    HTML('<center><strong><p>solubility_tab help</strong></p></center>')
+    HTML('<center><strong><p></strong></p></center>')
   help[["mRNA_tab"]] <-
-    HTML('<center><strong><p>mRNA_tab help</strong></p></center>')
+    HTML('<center><strong><p></strong></p></center>')
   help[["overview"]] <-
     HTML('')
   help[["enrichment_tab"]] <-
-    HTML('<center><strong><p>enrichment_tab help</strong></p></center>')
+    HTML('<center><strong><p></strong></p></center>')
   
   output$description <-
-    renderUI(HTML("<center><h1>Add description of the tool</h1></center>"))
+    renderUI(HTML("<center><h1></h1></center>"))
   
   output$help <- renderUI({
     tab <- input$tabs
